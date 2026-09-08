@@ -1,0 +1,10 @@
+Shipment_ID,Arrival_Date,Delivery_Date,Commodity,Quantity,Unit
+SYN-BL-001,2026-09-09,,Navigation Unit,400,PCS
+SYN-BL-001,2026-09-09,,Camera Module,150,PCS
+SYN-BL-001,2026-09-09,,Charging Hub,50,PCS
+SYN-BL-001,2026-09-09,,Battery Pack,400,PCS
+SYN-BL-002,2026-09-12,2026-09-16,Controller Unit,100,PCS
+SYN-BL-002,2026-09-12,2026-09-16,Sensor Module,50,PCS
+SYN-BL-002,2026-09-12,2026-09-16,Propeller Set,550,PCS
+SYN-BL-002,2026-09-12,2026-09-16,Protective Case,250,PCS
+SYN-BL-003,2026-09-05,2026-09-07,Display Module,80,PCS
