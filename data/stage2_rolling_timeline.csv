@@ -1,0 +1,26 @@
+Day_Offset,Date,Commodity,Q_ty_Shipment
+-8,2026-08-31,,0
+-7,2026-09-01,,0
+-6,2026-09-02,,0
+-5,2026-09-03,,0
+-4,2026-09-04,,0
+-3,2026-09-05,,0
+-2,2026-09-06,,0
+-1,2026-09-07,,0
+0,2026-09-08 TODAY,,0
+1,2026-09-09,"Navigation Unit - 400 PCS
+Camera Module - 150 PCS
+Charging Hub - 50 PCS
+Battery Pack - 400 PCS",1
+2,2026-09-10,,0
+3,2026-09-11,,0
+4,2026-09-12,"Controller Unit - 100 PCS
+Sensor Module - 50 PCS
+Propeller Set - 550 PCS
+Protective Case - 250 PCS",1
+5,2026-09-13,,0
+6,2026-09-14,,0
+7,2026-09-15,"Survey Kit - 60 SET
+Remote Unit - 120 PCS
+Spare Battery - 240 PCS",1
+8,2026-09-16,,0
