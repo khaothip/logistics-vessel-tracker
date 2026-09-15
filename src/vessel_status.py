@@ -68,7 +68,7 @@ def build_vessel_chart(data: pd.DataFrame, today=None):
     ship_points = data.loc[data["Qty"] > 0]
     full_range = pd.date_range(data["Date"].min(), data["Date"].max(), freq="D")
     fig, ax = plt.subplots(figsize=(13, 4.5))
-    water_level, label_y = 0.75, -0.52
+    water_level = 0.75
 
     ax.set_xlim(mdates.date2num(full_range.min()), mdates.date2num(full_range.max()))
     ax.set_ylim(-0.55, 1.05)
@@ -92,12 +92,24 @@ def build_vessel_chart(data: pd.DataFrame, today=None):
 
     today_num = mdates.date2num(today)
     ax.axvline(today_num, color=ACCENT_COLOR, linestyle="--", linewidth=1.2, zorder=3)
-    ax.text(today_num, label_y, "TODAY", ha="center", va="bottom",
-            fontsize=9, fontweight="bold", color=ACCENT_COLOR)
-    ax.text(today_num - 2, label_y, "ARRIVED + DOING CUSTOMS CLEARANCE...",
-            ha="right", va="bottom", fontsize=9, fontstyle="italic", color="gray")
-    ax.text(today_num + 2, label_y, "ARRIVING...",
-            ha="left", va="bottom", fontsize=9, fontstyle="italic", color="gray")
+    # Use axes-relative positions so the three footer labels remain separated
+    # regardless of the date range shown on the x-axis.
+    footer_y = -0.08
+    ax.text(
+        0.25, footer_y, "ARRIVED + DOING CUSTOMS CLEARANCE...",
+        transform=ax.transAxes, ha="center", va="top",
+        fontsize=9, fontstyle="italic", color="gray",
+    )
+    ax.text(
+        0.50, footer_y, "TODAY",
+        transform=ax.transAxes, ha="center", va="top",
+        fontsize=9, fontweight="bold", color=ACCENT_COLOR,
+    )
+    ax.text(
+        0.75, footer_y, "ARRIVING...",
+        transform=ax.transAxes, ha="center", va="top",
+        fontsize=9, fontstyle="italic", color="gray",
+    )
 
     ax.set_title("VESSEL STATUS", fontweight="bold", fontsize=14, pad=15)
     ax.xaxis.set_ticks_position("top")
@@ -109,6 +121,7 @@ def build_vessel_chart(data: pd.DataFrame, today=None):
         ax.spines[side].set_visible(False)
 
     plt.tight_layout()
+    fig.subplots_adjust(bottom=0.18)
     return fig
 
 
