@@ -20,6 +20,19 @@ flowchart LR
     D --> E["Vessel timeline"]
 ```
 
+## Excel formula placement
+
+The table below shows where each formula is entered and how the worksheet changes at every stage.
+
+| Stage | Enter in | Excel formula | Result |
+|---|---|---|---|
+| Create the rolling 17-day calendar | Rolling view `G2` | `=SEQUENCE(17,1,TODAY()-8,1)` | Spills dates from eight days before today to eight days after today into `G2:G18`. |
+| Create one row per shipment | Transformation 1 `A2` | `=HSTACK(UNIQUE(Sheet1!AH:AH),XLOOKUP(UNIQUE(Sheet1!AH:AH),Sheet1!AH:AH,Sheet1!C:C),XLOOKUP(UNIQUE(Sheet1!AH:AH),Sheet1!AH:AH,Sheet1!D:D))` | Spills the unique shipment key, arrival date, and delivery date into columns `A:C`. |
+| Combine the commodity lines | Transformation 1 `D2`, then fill down | `=TEXTJOIN(CHAR(10),TRUE,FILTER(Sheet1!G:G&" - "&Sheet1!H:H&" "&Sheet1!I:I,Sheet1!AH:AH=A2))` | Combines all commodity, quantity, and unit rows for the shipment in `A2` into one multiline cell. |
+| Show active shipments on each date | Rolling view `H2`, then fill down | `=TEXTJOIN(CHAR(10),TRUE,FILTER(D:D,(B:B=G2)*((C:C="")+(C:C=0)+(C:C>TODAY())),""))` | Returns commodity summaries whose arrival date matches `G2` and whose delivery is blank, zero, or later than today. |
+
+Turn on **Wrap Text** for the commodity-summary columns so each item separated by `CHAR(10)` appears on a new line. The tables below show the data produced by these formulas.
+
 ## Source data — `Sheet1`
 
 The table below represents the item-level source. Column references used by the workbook are documented in [Excel transformation logic](docs/excel_formulas.md).
