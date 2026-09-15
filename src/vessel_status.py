@@ -111,7 +111,7 @@ def build_vessel_chart(data: pd.DataFrame, today=None):
         fontsize=9, fontstyle="italic", color="gray",
     )
 
-    ax.set_title("VESSEL STATUS", fontweight="bold", fontsize=14, pad=15)
+    ax.set_title("VESSEL STATUS", fontweight="bold", fontsize=14, pad=42)
     ax.xaxis.set_ticks_position("top")
     ax.spines["top"].set_position(("data", 1.0))
     ax.set_xticks(mdates.date2num(full_range))
@@ -121,7 +121,7 @@ def build_vessel_chart(data: pd.DataFrame, today=None):
         ax.spines[side].set_visible(False)
 
     plt.tight_layout()
-    fig.subplots_adjust(bottom=0.18)
+    fig.subplots_adjust(top=0.76, bottom=0.18)
     return fig
 
 
