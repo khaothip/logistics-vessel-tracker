@@ -15,7 +15,7 @@ The original workbook stores the relevant fields in these columns:
 | I | Unit | PCS |
 | AH | Shipment key / B/L | SYN-BL-002 |
 
-The downloadable [raw sample](../data/sample_shipments.csv) uses descriptive headers, but represents the same six fields.
+The complete sample source table is displayed in the [project README](../README.md#source-data--sheet1).
 
 ## Raw table — `Sheet1`
 
@@ -75,7 +75,7 @@ Enter this formula beside the first shipment key and fill down:
 | SYN-BL-003 | 12-Sep-2026 | 16-Sep-2026 | Controller Unit - 100 PCS<br>Sensor Module - 50 PCS<br>Propeller Set - 550 PCS<br>Protective Case - 250 PCS |
 | SYN-BL-004 | 15-Sep-2026 | 0 | Survey Kit - 60 SET<br>Remote Unit - 120 PCS<br>Spare Battery - 240 PCS |
 
-Download the complete [Transformation 1 output](../data/stage1_shipment_summary.csv).
+The complete output table is displayed in the [project README](../README.md#transformation-1--shipment-level-summary).
 
 ## Transformation 2 — active shipments on a rolling calendar
 
@@ -112,7 +112,7 @@ For reproducibility, the demonstration below treats **08-Sep-2026 as TODAY**. Th
 | +4 | 12-Sep-2026 | Controller Unit - 100 PCS<br>Sensor Module - 50 PCS<br>Propeller Set - 550 PCS<br>Protective Case - 250 PCS | 1 |
 | +7 | 15-Sep-2026 | Survey Kit - 60 SET<br>Remote Unit - 120 PCS<br>Spare Battery - 240 PCS | 1 |
 
-The full 17-day table is available in [Transformation 2 output](../data/stage2_rolling_timeline.csv).
+The full 17-day output is displayed in the [project README](../README.md#transformation-2--rolling-active-date-table).
 
 ## Why SYN-BL-001 disappears
 
