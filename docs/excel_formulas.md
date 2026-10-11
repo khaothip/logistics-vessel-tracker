@@ -25,17 +25,16 @@ The complete sample source table is displayed in the [project README](../README.
 |---|---:|---:|---|---:|---|
 | SYN-BL-001 | 04-Sep-2026 | 07-Sep-2026 | Inspection Camera | 80 | PCS |
 | SYN-BL-001 | 04-Sep-2026 | 07-Sep-2026 | Mounting Bracket | 80 | PCS |
-| SYN-BL-002 | 09-Sep-2026 | blank | Navigation Unit | 400 | PCS |
-| SYN-BL-002 | 09-Sep-2026 | blank | Camera Module | 150 | PCS |
-| SYN-BL-002 | 09-Sep-2026 | blank | Charging Hub | 50 | PCS |
-| SYN-BL-002 | 09-Sep-2026 | blank | Battery Pack | 400 | PCS |
+| SYN-BL-005 | 06-Sep-2026 | blank | Power Distribution Unit | 75 | PCS |
+| SYN-BL-005 | 06-Sep-2026 | blank | Communication Module | 75 | PCS |
+| SYN-BL-002 | 09-Sep-2026 | 0 | Navigation Unit | 400 | PCS |
+| SYN-BL-002 | 09-Sep-2026 | 0 | Camera Module | 150 | PCS |
+| SYN-BL-002 | 09-Sep-2026 | 0 | Charging Hub | 50 | PCS |
+| SYN-BL-002 | 09-Sep-2026 | 0 | Battery Pack | 400 | PCS |
 | SYN-BL-003 | 12-Sep-2026 | 16-Sep-2026 | Controller Unit | 100 | PCS |
 | SYN-BL-003 | 12-Sep-2026 | 16-Sep-2026 | Sensor Module | 50 | PCS |
 | SYN-BL-003 | 12-Sep-2026 | 16-Sep-2026 | Propeller Set | 550 | PCS |
 | SYN-BL-003 | 12-Sep-2026 | 16-Sep-2026 | Protective Case | 250 | PCS |
-| SYN-BL-004 | 15-Sep-2026 | 0 | Survey Kit | 60 | SET |
-| SYN-BL-004 | 15-Sep-2026 | 0 | Remote Unit | 120 | PCS |
-| SYN-BL-004 | 15-Sep-2026 | 0 | Spare Battery | 240 | PCS |
 
 In the delivery-date field, `blank` means that no value has been entered. A value of `0` may be returned by the source system or an upstream formula when no valid date exists. The workflow treats both as **no confirmed delivery date**.
 
@@ -77,9 +76,9 @@ Enter this formula beside the first shipment key and fill down:
 | Shipment key | ATA LCB | Delivery date | Commodity summary |
 |---|---:|---:|---|
 | SYN-BL-001 | 04-Sep-2026 | 07-Sep-2026 | Inspection Camera - 80 PCS<br>Mounting Bracket - 80 PCS |
-| SYN-BL-002 | 09-Sep-2026 | blank | Navigation Unit - 400 PCS<br>Camera Module - 150 PCS<br>Charging Hub - 50 PCS<br>Battery Pack - 400 PCS |
+| SYN-BL-005 | 06-Sep-2026 | blank | Power Distribution Unit - 75 PCS<br>Communication Module - 75 PCS |
+| SYN-BL-002 | 09-Sep-2026 | 0 | Navigation Unit - 400 PCS<br>Camera Module - 150 PCS<br>Charging Hub - 50 PCS<br>Battery Pack - 400 PCS |
 | SYN-BL-003 | 12-Sep-2026 | 16-Sep-2026 | Controller Unit - 100 PCS<br>Sensor Module - 50 PCS<br>Propeller Set - 550 PCS<br>Protective Case - 250 PCS |
-| SYN-BL-004 | 15-Sep-2026 | 0 | Survey Kit - 60 SET<br>Remote Unit - 120 PCS<br>Spare Battery - 240 PCS |
 
 The complete output table is displayed in the [project README](../README.md#transformation-1--shipment-level-summary).
 
@@ -127,18 +126,18 @@ For reproducibility, the demonstration below treats **08-Sep-2026 as TODAY**. Th
 | Offset | Date | Active commodity summary | Plot flag |
 |---:|---:|---|---:|
 | -4 | 04-Sep-2026 | *(blank — delivered on 07-Sep)* | 0 |
+| -2 | 06-Sep-2026 | Power Distribution Unit - 75 PCS<br>Communication Module - 75 PCS | 1 |
 | 0 | 08-Sep-2026 TODAY | *(blank)* | 0 |
 | +1 | 09-Sep-2026 | Navigation Unit - 400 PCS<br>Camera Module - 150 PCS<br>Charging Hub - 50 PCS<br>Battery Pack - 400 PCS | 1 |
 | +4 | 12-Sep-2026 | Controller Unit - 100 PCS<br>Sensor Module - 50 PCS<br>Propeller Set - 550 PCS<br>Protective Case - 250 PCS | 1 |
-| +7 | 15-Sep-2026 | Survey Kit - 60 SET<br>Remote Unit - 120 PCS<br>Spare Battery - 240 PCS | 1 |
 
 The final numeric column is a plot flag rather than the product quantity from `Sheet1`: a positive value tells Python to draw a ship for that date, while `0` suppresses the ship icon.
 
 The full 17-day output is displayed in the [project README](../README.md#transformation-2--dynamic-active-date-table).
 
-## Why SYN-BL-001 disappears
+## Why the two past arrivals behave differently
 
-Its arrival is inside the rolling window, but its delivery date (07-Sep-2026) is not blank, not zero, and not later than the example TODAY (08-Sep-2026). It is therefore excluded from the active operational view.
+`SYN-BL-001` disappears because its delivery date (07-Sep-2026) is not blank, not zero, and not later than the example TODAY (08-Sep-2026). `SYN-BL-005` remains visible on 06-Sep because its delivery date is blank. This demonstrates how an undelivered ship can stay to the left of the moving `TODAY` line.
 
 ## Python input range
 
