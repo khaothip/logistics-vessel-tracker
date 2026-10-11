@@ -22,7 +22,7 @@ flowchart LR
 
 ## Source data — `Sheet1`
 
-The table below represents the item-level source. Column references used by the workbook are documented in [Excel transformation logic](docs/excel_formulas.md).
+The table below represents the item-level source. `Shipment ID` is the shipment key or bill of lading (B/L), while `ATA LCB` is the actual arrival date used to position the shipment on the timeline. Column references used by the workbook are documented in [Excel transformation logic](docs/excel_formulas.md).
 
 | Shipment ID | ATA LCB | Delivery date | Commodity | Qty | Unit |
 |---|---|---|---|---:|---|
@@ -53,9 +53,9 @@ The table below represents the item-level source. Column references used by the 
 
 ## Transformation 2 — rolling active-date table
 
-For a reproducible example, **08-Sep-2026** is treated as `TODAY`. The live workbook uses the actual `TODAY()` value. A shipment remains visible when its delivery date is blank, zero, or later than today.
+For a reproducible example, **08-Sep-2026** is treated as `TODAY`. The live workbook uses the actual `TODAY()` value. A blank delivery date means no date has been entered, while `0` can be returned by the source system or an upstream Excel formula when no valid date exists. This workflow interprets both values as **no confirmed delivery date**. A shipment remains visible when its delivery date is blank, zero, or later than today; a delivery date equal to today is excluded because the current business rule treats it as delivered.
 
-| Offset | Date | Active commodity summary | Shipments |
+| Offset | Date | Active commodity summary | Plot flag |
 |---:|---|---|---:|
 | -8 | 31-Aug-2026 | — | 0 |
 | -7 | 01-Sep-2026 | — | 0 |
@@ -75,6 +75,17 @@ For a reproducible example, **08-Sep-2026** is treated as `TODAY`. The live work
 | +7 | 15-Sep-2026 | Survey Kit - 60 SET<br>Remote Unit - 120 PCS<br>Spare Battery - 240 PCS | 1 |
 | +8 | 16-Sep-2026 | — | 0 |
 
+### How the final column is used
+
+The final numeric column is a **plot flag**, not the commodity quantity from `Sheet1`. A positive value tells Python to draw a ship for that date; `0` means that no active shipment should be plotted. This distinction prevents the source `Qty` field from being confused with the chart-control value.
+
+### Processing assumptions
+
+- Every row with the same Shipment ID is expected to contain the same arrival and delivery dates. `XLOOKUP` returns the first matching dates.
+- An arrival date determines the ship's horizontal position; the delivery-date rule determines whether the shipment remains visible.
+- If a date is displayed as text with `TODAY` appended, Python removes that label before converting the value to a date.
+- The range `G1:I32` is intentionally larger than the 17-day example. Unused rows are allowed because rows without a valid date are removed during cleaning.
+
 ## Python visualization
 
 The code in [`src/vessel_status.py`](src/vessel_status.py):
@@ -82,15 +93,17 @@ The code in [`src/vessel_status.py`](src/vessel_status.py):
 - reads `G1:I32` through Python in Excel's `xl()` function;
 - removes the appended `TODAY` label before parsing dates;
 - converts invalid dates to missing values and invalid quantities to zero;
-- draws a ship only when the shipment count is positive;
+- draws a ship only when the plot flag is positive;
 - marks today's position with a red dashed line; and
 - places the three footer statuses at fixed relative positions so they remain separated.
 
 ## Run in Python in Excel
 
-1. Create the rolling table with the columns `Date`, `Commodity`, and `Qty`.
+1. Create the rolling table with the columns `Date`, `Commodity`, and a positive/zero plot flag.
 2. Place it in `G1:I32`, or change `SOURCE_RANGE`.
 3. Insert a Python cell and copy the code from `src/vessel_status.py`.
 4. Keep `fig` as the final expression so Excel displays the chart.
+
+The script is intended for **Python in Excel** because `xl()` is supplied by Excel. Running the file directly in a standard Python interpreter requires replacing `xl()` with another data-loading method.
 
 All identifiers, commodities, quantities, and dates shown above are fictional and demonstrate the processing logic only.
