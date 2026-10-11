@@ -108,3 +108,9 @@ The code in [`src/vessel_status.py`](src/vessel_status.py):
 The script is intended for **Python in Excel** because `xl()` is supplied by Excel. Running the file directly in a standard Python interpreter requires replacing `xl()` with another data-loading method.
 
 All identifiers, commodities, quantities, and dates shown above are fictional and demonstrate the processing logic only.
+
+## Project scope and limitations
+
+This project was an exploratory proof of concept created to test the initial feasibility of presenting shipment status as a dynamic timeline. It was not used as an official communication tool with any department or external organization.
+
+During testing, the dynamic-array formulas and repeated recalculation increased the workbook's processing time. This made entering and saving new operational records noticeably slower, so the prototype was not deployed into the live data-entry workflow. A production version should separate reporting from transaction entry and use bounded Excel Tables, precomputed transformations, or another data-processing layer to reduce recalculation overhead.
