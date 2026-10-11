@@ -9,7 +9,7 @@ A vessel-arrival monitoring workflow built with **Excel dynamic-array formulas**
 The same shipment key can appear in several rows because one shipment contains multiple commodities. The workflow restructures these records in three steps:
 
 1. **Shipment aggregation** — retrieve one arrival date and delivery date per shipment, then combine its commodity lines.
-2. **Operational date view** — map active shipments to a calendar from `TODAY()-8` to `TODAY()+8`.
+2. **Operational date view** — map active shipments to a calendar ending at `TODAY()+8`. The start date is the earlier of `TODAY()-8` and the oldest arrival that still has no completed delivery.
 3. **Vessel visualization** — clean the transformed range with pandas and plot arrivals with Matplotlib.
 
 ```mermaid
@@ -51,9 +51,11 @@ The table below represents the item-level source. `Shipment ID` is the shipment 
 | SYN-BL-003 | 12-Sep-2026 | 16-Sep-2026 | Controller Unit - 100 PCS<br>Sensor Module - 50 PCS<br>Propeller Set - 550 PCS<br>Protective Case - 250 PCS |
 | SYN-BL-004 | 15-Sep-2026 | 0 | Survey Kit - 60 SET<br>Remote Unit - 120 PCS<br>Spare Battery - 240 PCS |
 
-## Transformation 2 — rolling active-date table
+## Transformation 2 — dynamic active-date table
 
 For a reproducible example, **08-Sep-2026** is treated as `TODAY`. The live workbook uses the actual `TODAY()` value. A blank delivery date means no date has been entered, while `0` can be returned by the source system or an upstream Excel formula when no valid date exists. This workflow interprets both values as **no confirmed delivery date**. A shipment remains visible when its delivery date is blank, zero, or later than today; a delivery date equal to today is excluded because the current business rule treats it as delivered.
+
+The live calendar normally begins at `TODAY()-8`, but it expands further into the past when an older shipment is still active. This allows an undelivered ship to remain visible on the left side of the moving `TODAY` line until a completed delivery date is recorded.
 
 | Offset | Date | Active commodity summary | Plot flag |
 |---:|---|---|---:|
@@ -84,13 +86,13 @@ The final numeric column is a **plot flag**, not the commodity quantity from `Sh
 - Every row with the same Shipment ID is expected to contain the same arrival and delivery dates. `XLOOKUP` returns the first matching dates.
 - An arrival date determines the ship's horizontal position; the delivery-date rule determines whether the shipment remains visible.
 - If a date is displayed as text with `TODAY` appended, Python removes that label before converting the value to a date.
-- The range `G1:I32` is intentionally larger than the 17-day example. Unused rows are allowed because rows without a valid date are removed during cleaning.
+- Python reads `G1:I1000` so the calendar can expand backwards for long-running undelivered shipments. Unused rows are allowed because rows without a valid date are removed during cleaning.
 
 ## Python visualization
 
 The code in [`src/vessel_status.py`](src/vessel_status.py):
 
-- reads `G1:I32` through Python in Excel's `xl()` function;
+- reads `G1:I1000` through Python in Excel's `xl()` function;
 - removes the appended `TODAY` label before parsing dates;
 - converts invalid dates to missing values and invalid quantities to zero;
 - draws a ship only when the plot flag is positive;
@@ -100,7 +102,7 @@ The code in [`src/vessel_status.py`](src/vessel_status.py):
 ## Run in Python in Excel
 
 1. Create the rolling table with the columns `Date`, `Commodity`, and a positive/zero plot flag.
-2. Place it in `G1:I32`, or change `SOURCE_RANGE`.
+2. Place it in `G1:I1000`, or change `SOURCE_RANGE` if the operational history can exceed this capacity.
 3. Insert a Python cell and copy the code from `src/vessel_status.py`.
 4. Keep `fig` as the final expression so Excel displays the chart.
 
