@@ -2,7 +2,7 @@
 
 A vessel-arrival monitoring workflow built with **Excel dynamic-array formulas** and **Python in Excel**. It converts item-level shipment records into a shipment-level summary, filters records by operational status, and displays active arrivals on a rolling timeline.
 
-![Vessel-status chart generated from sample data](assets/vessel_status_demo.svg)
+![Vessel-status chart generated from sample data](assets/vessel_status_demo_updated.svg)
 
 ## What the workflow does
 
