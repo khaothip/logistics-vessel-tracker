@@ -8,12 +8,14 @@ The original workbook stores the relevant fields in these columns:
 
 | Excel column | Field | Example |
 |---|---|---|
-| C | ATA LCB / arrival date | 09-Sep-2026 |
+| C | ATA LCB / actual arrival date used on the timeline | 09-Sep-2026 |
 | D | Delivery date | blank, 0, or 16-Sep-2026 |
 | G | Commodity | Navigation Unit |
 | H | Quantity | 400 |
 | I | Unit | PCS |
 | AH | Shipment key / B/L | SYN-BL-002 |
+
+`Shipment key / B/L` identifies one shipment. `ATA LCB` is the actual arrival date used to place that shipment on the vessel timeline.
 
 The complete sample source table is displayed in the [project README](../README.md#source-data--sheet1).
 
@@ -35,6 +37,8 @@ The complete sample source table is displayed in the [project README](../README.
 | SYN-BL-004 | 15-Sep-2026 | 0 | Remote Unit | 120 | PCS |
 | SYN-BL-004 | 15-Sep-2026 | 0 | Spare Battery | 240 | PCS |
 
+In the delivery-date field, `blank` means that no value has been entered. A value of `0` may be returned by the source system or an upstream formula when no valid date exists. The workflow treats both as **no confirmed delivery date**.
+
 ## Transformation 1A — one row per shipment
 
 ```excel
@@ -48,6 +52,8 @@ The complete sample source table is displayed in the [project README](../README.
 - `UNIQUE` extracts distinct shipment keys.
 - The two `XLOOKUP` functions retrieve arrival and delivery dates.
 - `HSTACK` creates a shipment-level table.
+
+`XLOOKUP` returns the first matching arrival and delivery dates. The workflow therefore assumes that all rows belonging to the same shipment key contain consistent dates; conflicting dates should be validated before this step.
 
 ## Transformation 1B — combine commodity rows
 
@@ -98,13 +104,13 @@ Assume Transformation 1 contains:
 )
 ```
 
-The arrival date must match `G2`. The delivery date must be blank, zero, or later than today. Multiplication represents **AND**; addition represents **OR**.
+The arrival date must match `G2`. The delivery date must be blank, zero, or later than today. Multiplication represents **AND**; addition represents **OR**. Because the comparison is `>TODAY()` rather than `>=TODAY()`, a delivery date equal to today is excluded under the current business rule.
 
 For reproducibility, the demonstration below treats **08-Sep-2026 as TODAY**. The actual workbook remains dynamic and uses `TODAY()`.
 
 ### Result after Transformation 2
 
-| Offset | Date | Active commodity summary | Shipments |
+| Offset | Date | Active commodity summary | Plot flag |
 |---:|---:|---|---:|
 | -4 | 04-Sep-2026 | *(blank — delivered on 07-Sep)* | 0 |
 | 0 | 08-Sep-2026 TODAY | *(blank)* | 0 |
@@ -112,11 +118,17 @@ For reproducibility, the demonstration below treats **08-Sep-2026 as TODAY**. Th
 | +4 | 12-Sep-2026 | Controller Unit - 100 PCS<br>Sensor Module - 50 PCS<br>Propeller Set - 550 PCS<br>Protective Case - 250 PCS | 1 |
 | +7 | 15-Sep-2026 | Survey Kit - 60 SET<br>Remote Unit - 120 PCS<br>Spare Battery - 240 PCS | 1 |
 
+The final numeric column is a plot flag rather than the product quantity from `Sheet1`: a positive value tells Python to draw a ship for that date, while `0` suppresses the ship icon.
+
 The full 17-day output is displayed in the [project README](../README.md#transformation-2--rolling-active-date-table).
 
 ## Why SYN-BL-001 disappears
 
 Its arrival is inside the rolling window, but its delivery date (07-Sep-2026) is not blank, not zero, and not later than the example TODAY (08-Sep-2026). It is therefore excluded from the active operational view.
+
+## Python input range
+
+The Python cell reads `G1:I32`. This is larger than the 17-day example so the live worksheet can contain additional rows. Blank or invalid date rows are removed by `prepare_data()`. The script relies on Python in Excel's `xl()` function and will not run unchanged in a standard Python interpreter.
 
 ## Production improvements
 
