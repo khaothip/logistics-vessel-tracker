@@ -28,17 +28,16 @@ The table below represents the item-level source. `Shipment ID` is the shipment 
 |---|---|---|---|---:|---|
 | SYN-BL-001 | 04-Sep-2026 | 07-Sep-2026 | Inspection Camera | 80 | PCS |
 | SYN-BL-001 | 04-Sep-2026 | 07-Sep-2026 | Mounting Bracket | 80 | PCS |
-| SYN-BL-002 | 09-Sep-2026 | — | Navigation Unit | 400 | PCS |
-| SYN-BL-002 | 09-Sep-2026 | — | Camera Module | 150 | PCS |
-| SYN-BL-002 | 09-Sep-2026 | — | Charging Hub | 50 | PCS |
-| SYN-BL-002 | 09-Sep-2026 | — | Battery Pack | 400 | PCS |
+| SYN-BL-005 | 06-Sep-2026 | — | Power Distribution Unit | 75 | PCS |
+| SYN-BL-005 | 06-Sep-2026 | — | Communication Module | 75 | PCS |
+| SYN-BL-002 | 09-Sep-2026 | 0 | Navigation Unit | 400 | PCS |
+| SYN-BL-002 | 09-Sep-2026 | 0 | Camera Module | 150 | PCS |
+| SYN-BL-002 | 09-Sep-2026 | 0 | Charging Hub | 50 | PCS |
+| SYN-BL-002 | 09-Sep-2026 | 0 | Battery Pack | 400 | PCS |
 | SYN-BL-003 | 12-Sep-2026 | 16-Sep-2026 | Controller Unit | 100 | PCS |
 | SYN-BL-003 | 12-Sep-2026 | 16-Sep-2026 | Sensor Module | 50 | PCS |
 | SYN-BL-003 | 12-Sep-2026 | 16-Sep-2026 | Propeller Set | 550 | PCS |
 | SYN-BL-003 | 12-Sep-2026 | 16-Sep-2026 | Protective Case | 250 | PCS |
-| SYN-BL-004 | 15-Sep-2026 | 0 | Survey Kit | 60 | SET |
-| SYN-BL-004 | 15-Sep-2026 | 0 | Remote Unit | 120 | PCS |
-| SYN-BL-004 | 15-Sep-2026 | 0 | Spare Battery | 240 | PCS |
 
 ## Transformation 1 — shipment-level summary
 
@@ -47,15 +46,15 @@ The table below represents the item-level source. `Shipment ID` is the shipment 
 | Shipment ID | ATA LCB | Delivery date | Commodity summary |
 |---|---|---|---|
 | SYN-BL-001 | 04-Sep-2026 | 07-Sep-2026 | Inspection Camera - 80 PCS<br>Mounting Bracket - 80 PCS |
-| SYN-BL-002 | 09-Sep-2026 | — | Navigation Unit - 400 PCS<br>Camera Module - 150 PCS<br>Charging Hub - 50 PCS<br>Battery Pack - 400 PCS |
+| SYN-BL-005 | 06-Sep-2026 | — | Power Distribution Unit - 75 PCS<br>Communication Module - 75 PCS |
+| SYN-BL-002 | 09-Sep-2026 | 0 | Navigation Unit - 400 PCS<br>Camera Module - 150 PCS<br>Charging Hub - 50 PCS<br>Battery Pack - 400 PCS |
 | SYN-BL-003 | 12-Sep-2026 | 16-Sep-2026 | Controller Unit - 100 PCS<br>Sensor Module - 50 PCS<br>Propeller Set - 550 PCS<br>Protective Case - 250 PCS |
-| SYN-BL-004 | 15-Sep-2026 | 0 | Survey Kit - 60 SET<br>Remote Unit - 120 PCS<br>Spare Battery - 240 PCS |
 
 ## Transformation 2 — dynamic active-date table
 
 For a reproducible example, **08-Sep-2026** is treated as `TODAY`. The live workbook uses the actual `TODAY()` value. A blank delivery date means no date has been entered, while `0` can be returned by the source system or an upstream Excel formula when no valid date exists. This workflow interprets both values as **no confirmed delivery date**. A shipment remains visible when its delivery date is blank, zero, or later than today; a delivery date equal to today is excluded because the current business rule treats it as delivered.
 
-The live calendar normally begins at `TODAY()-8`, but it expands further into the past when an older shipment is still active. This allows an undelivered ship to remain visible on the left side of the moving `TODAY` line until a completed delivery date is recorded.
+The live calendar normally begins at `TODAY()-8`, but it expands further into the past when an older shipment is still active. This allows an undelivered ship to remain visible on the left side of the moving `TODAY` line until a completed delivery date is recorded. In this example, `SYN-BL-005` arrived on 06-Sep without a delivery date, so it remains on the chart after the `TODAY` line has moved past it. Only two upcoming ships are shown after `TODAY` to keep the visualization focused.
 
 | Offset | Date | Active commodity summary | Plot flag |
 |---:|---|---|---:|
@@ -65,7 +64,7 @@ The live calendar normally begins at `TODAY()-8`, but it expands further into th
 | -5 | 03-Sep-2026 | — | 0 |
 | -4 | 04-Sep-2026 | — *(delivered 07-Sep)* | 0 |
 | -3 | 05-Sep-2026 | — | 0 |
-| -2 | 06-Sep-2026 | — | 0 |
+| -2 | 06-Sep-2026 | Power Distribution Unit - 75 PCS<br>Communication Module - 75 PCS | 1 |
 | -1 | 07-Sep-2026 | — | 0 |
 | 0 | **08-Sep-2026 TODAY** | — | 0 |
 | +1 | 09-Sep-2026 | Navigation Unit - 400 PCS<br>Camera Module - 150 PCS<br>Charging Hub - 50 PCS<br>Battery Pack - 400 PCS | 1 |
@@ -74,7 +73,7 @@ The live calendar normally begins at `TODAY()-8`, but it expands further into th
 | +4 | 12-Sep-2026 | Controller Unit - 100 PCS<br>Sensor Module - 50 PCS<br>Propeller Set - 550 PCS<br>Protective Case - 250 PCS | 1 |
 | +5 | 13-Sep-2026 | — | 0 |
 | +6 | 14-Sep-2026 | — | 0 |
-| +7 | 15-Sep-2026 | Survey Kit - 60 SET<br>Remote Unit - 120 PCS<br>Spare Battery - 240 PCS | 1 |
+| +7 | 15-Sep-2026 | — | 0 |
 | +8 | 16-Sep-2026 | — | 0 |
 
 ### How the final column is used
