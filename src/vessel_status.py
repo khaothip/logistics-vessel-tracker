@@ -1,6 +1,6 @@
 """Vessel-arrival timeline designed for Python in Excel.
 
-Expected Excel range G1:I32: Date | Commodity | Plot flag.
+Expected Excel range G1:I1000: Date | Commodity | Plot flag.
 The plot flag is separate from the raw commodity quantity: values greater than zero
 cause a ship icon to be drawn, while zero suppresses the icon.
 The chart uses the transformed worksheet table rather than confidential raw data.
@@ -11,7 +11,7 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import pandas as pd
 
-SOURCE_RANGE = "G1:I32"
+SOURCE_RANGE = "G1:I1000"
 SHIP_COLOR = "#4472C4"
 ACCENT_COLOR = "#C00000"
 GRID_COLOR = "#D9D9D9"
