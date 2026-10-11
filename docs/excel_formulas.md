@@ -83,14 +83,28 @@ Enter this formula beside the first shipment key and fill down:
 
 The complete output table is displayed in the [project README](../README.md#transformation-1--shipment-level-summary).
 
-## Transformation 2 — active shipments on a rolling calendar
+## Transformation 2 — active shipments on a dynamic calendar
 
 Assume Transformation 1 contains:
 
 - column B: arrival date;
 - column C: delivery date;
 - column D: commodity summary; and
-- cell G2: one date from the rolling calendar.
+- cell G2: one date from the dynamic calendar.
+
+### Dynamic calendar range
+
+The calendar ends eight days after today. Its start date is whichever is earlier: eight days before today or the oldest arrival date that is still active.
+
+```excel
+=LET(
+    ActiveArrivals,FILTER(B2:B1000,(B2:B1000<>"")*((C2:C1000="")+(C2:C1000=0)+(C2:C1000>TODAY())),TODAY()-8),
+    StartDate,MIN(TODAY()-8,MIN(ActiveArrivals)),
+    SEQUENCE(TODAY()+8-StartDate+1,1,StartDate,1)
+)
+```
+
+This prevents an undelivered shipment from disappearing merely because its arrival is more than eight days old. As the `TODAY` line moves forward, the ship stays on its original arrival date to the left of the line until its delivery date is completed.
 
 ```excel
 =TEXTJOIN(
@@ -120,7 +134,7 @@ For reproducibility, the demonstration below treats **08-Sep-2026 as TODAY**. Th
 
 The final numeric column is a plot flag rather than the product quantity from `Sheet1`: a positive value tells Python to draw a ship for that date, while `0` suppresses the ship icon.
 
-The full 17-day output is displayed in the [project README](../README.md#transformation-2--rolling-active-date-table).
+The full 17-day output is displayed in the [project README](../README.md#transformation-2--dynamic-active-date-table).
 
 ## Why SYN-BL-001 disappears
 
@@ -128,7 +142,7 @@ Its arrival is inside the rolling window, but its delivery date (07-Sep-2026) is
 
 ## Python input range
 
-The Python cell reads `G1:I32`. This is larger than the 17-day example so the live worksheet can contain additional rows. Blank or invalid date rows are removed by `prepare_data()`. The script relies on Python in Excel's `xl()` function and will not run unchanged in a standard Python interpreter.
+The Python cell reads `G1:I1000`. The larger range allows the calendar to expand backwards when older shipments remain undelivered. Blank or invalid date rows are removed by `prepare_data()`. If more than 999 data rows are required, `SOURCE_RANGE` can be increased. The script relies on Python in Excel's `xl()` function and will not run unchanged in a standard Python interpreter.
 
 ## Production improvements
 
