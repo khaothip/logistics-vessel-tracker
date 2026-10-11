@@ -1,6 +1,8 @@
 """Vessel-arrival timeline designed for Python in Excel.
 
-Expected Excel range G1:I32: Date | Commodity | Qty.
+Expected Excel range G1:I32: Date | Commodity | Plot flag.
+The plot flag is separate from the raw commodity quantity: values greater than zero
+cause a ship icon to be drawn, while zero suppresses the icon.
 The chart uses the transformed worksheet table rather than confidential raw data.
 """
 
@@ -18,13 +20,13 @@ GRID_COLOR = "#D9D9D9"
 def prepare_data(raw: pd.DataFrame) -> pd.DataFrame:
     """Clean and validate the worksheet table."""
     data = raw.copy()
-    data.columns = ["Date", "Commodity", "Qty"]
+    data.columns = ["Date", "Commodity", "Plot Flag"]
     data["Date"] = (
         data["Date"].astype(str)
         .str.replace(r"\s*TODAY\s*$", "", regex=True)
     )
     data["Date"] = pd.to_datetime(data["Date"], errors="coerce")
-    data["Qty"] = pd.to_numeric(data["Qty"], errors="coerce").fillna(0)
+    data["Plot Flag"] = pd.to_numeric(data["Plot Flag"], errors="coerce").fillna(0)
     return data.dropna(subset=["Date"]).sort_values("Date")
 
 
@@ -65,7 +67,7 @@ def build_vessel_chart(data: pd.DataFrame, today=None):
         raise ValueError("No valid dates were found in the source range.")
 
     today = pd.Timestamp.today().normalize() if today is None else pd.Timestamp(today).normalize()
-    ship_points = data.loc[data["Qty"] > 0]
+    ship_points = data.loc[data["Plot Flag"] > 0]
     full_range = pd.date_range(data["Date"].min(), data["Date"].max(), freq="D")
     fig, ax = plt.subplots(figsize=(13, 4.5))
     water_level = 0.75
